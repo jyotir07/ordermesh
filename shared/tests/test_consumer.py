@@ -85,7 +85,11 @@ async def test_failure_dead_letters_after_max_retries():
 async def test_failure_republishes_with_incremented_retry(monkeypatch):
     broker = FakeBroker()
     consumer = Consumer(broker, "test.queue")
-    monkeypatch.setattr(asyncio, "sleep", lambda *_: asyncio.sleep(0))
+
+    async def _fast_sleep(*_):
+        return None
+
+    monkeypatch.setattr(asyncio, "sleep", _fast_sleep)
 
     async def boom(event: Event):
         raise RuntimeError("kaboom")
