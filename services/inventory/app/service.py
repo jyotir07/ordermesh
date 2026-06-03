@@ -59,11 +59,11 @@ async def reserve_for_order(
     )
     products = {p.id: p for p in result.scalars()}
 
-    # Verify availability for all items first.
+    # Verify availability for all items first. No mutations have happened yet,
+    # so we can simply bail out; the caller's session context releases any locks.
     for product_id, qty in wanted.items():
         product = products.get(product_id)
         if product is None or product.quantity_available < qty:
-            await session.rollback()
             return False
 
     # Commit the reservation.
