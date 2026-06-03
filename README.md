@@ -1,452 +1,128 @@
-# Project: Distributed Logistics & Order Fulfillment Platform
-
-## Overview
-
-Build a production-grade logistics and order fulfillment platform inspired by modern supply chain companies such as Locad, ShipBob, and Flexport.
-
-The platform should demonstrate backend engineering best practices including microservices, event-driven communication, asynchronous processing, scalable architecture, and cloud-native deployment.
-
-This project is intended as a portfolio project showcasing backend engineering, distributed systems design, API development, database design, caching, messaging systems, authentication, and DevOps practices.
-
----
-
-# Business Problem
-
-E-commerce businesses sell products through multiple channels and need a system to:
-
-* Manage inventory across warehouses
-* Receive and process customer orders
-* Reserve and update stock automatically
-* Create shipments
-* Track deliveries
-* Notify customers about order updates
-
-The platform should simulate this workflow end-to-end.
-
----
-
-# Tech Stack
-
-Backend:
-
-* FastAPI
-* Python 3.12+
-
-Database:
-
-* PostgreSQL
-
-Caching:
-
-* Redis
-
-Message Broker:
-
-* RabbitMQ
-
-ORM:
-
-* SQLAlchemy
-
-Database Migrations:
-
-* Alembic
-
-Authentication:
-
-* JWT Authentication
-
-Containerization:
-
-* Docker
-* Docker Compose
-
-Documentation:
-
-* Swagger/OpenAPI
-
-Testing:
-
-* Pytest
-
-Deployment:
-
-* AWS EC2
-* AWS RDS
-* AWS ElastiCache (optional)
-
-CI/CD:
-
-* GitHub Actions
-
----
-
-# Architecture
-
-The application should use a microservice architecture.
-
-Services:
-
-1. API Gateway
-2. Order Service
-3. Inventory Service
-4. Shipping Service
-5. Notification Service
-
-Communication:
-
-* Synchronous communication via REST APIs
-* Asynchronous communication via RabbitMQ events
-
-Example flow:
-
-Customer creates order
-→ Order Service validates request
-→ Order Created Event published
-→ Inventory Service reserves stock
-→ Stock Reserved Event published
-→ Shipping Service creates shipment
-→ Shipment Created Event published
-→ Notification Service sends updates
-
----
-
-# Service 1: Order Service
-
-Responsibilities:
-
-* Create order
-* Get order details
-* Update order status
-* Cancel order
-* List orders
-
-Order States:
-
-* PENDING
-* CONFIRMED
-* SHIPPED
-* DELIVERED
-* CANCELLED
-
-Database Table:
-
-Orders
-
-* id
-* customer_id
-* total_amount
-* status
-* created_at
-* updated_at
-
-Order Items
-
-* id
-* order_id
-* product_id
-* quantity
-* price
-
-Events:
-
-Publish:
-
-* OrderCreated
-* OrderCancelled
-
-Consume:
-
-* StockReserved
-* StockUnavailable
-* ShipmentCreated
-
----
-
-# Service 2: Inventory Service
-
-Responsibilities:
-
-* Manage inventory
-* Reserve stock
-* Release stock
-* Update stock levels
-* Low stock monitoring
-
-Database Table:
-
-Products
-
-* id
-* sku
-* name
-* quantity_available
-
-Inventory Reservations
-
-* id
-* product_id
-* order_id
-* quantity
-
-Events:
-
-Consume:
-
-* OrderCreated
-
-Publish:
-
-* StockReserved
-* StockUnavailable
-* StockReleased
-
-Business Logic:
-
-If inventory exists:
-
-* Reserve stock
-* Publish StockReserved
-
-Else:
-
-* Publish StockUnavailable
-
----
-
-# Service 3: Shipping Service
-
-Responsibilities:
-
-* Create shipment
-* Assign courier
-* Track shipment
-* Update shipment status
-
-Shipment Statuses:
-
-* CREATED
-* PICKED_UP
-* IN_TRANSIT
-* DELIVERED
-
-Database Table:
-
-Shipments
-
-* id
-* order_id
-* tracking_number
-* courier_name
-* status
-
-Events:
-
-Consume:
-
-* StockReserved
-
-Publish:
-
-* ShipmentCreated
-* ShipmentDelivered
-
-Tracking Numbers:
-
-Generate unique tracking IDs automatically.
-
-Example:
-
-TRK-2026-000001
-
----
-
-# Service 4: Notification Service
-
-Responsibilities:
-
-* Send email notifications
-* Log notification history
-
-Events Consumed:
-
-* OrderCreated
-* StockReserved
-* ShipmentCreated
-* ShipmentDelivered
-
-Notification Types:
-
-* Order Confirmation
-* Shipment Created
-* Shipment Delivered
-
-Initially mock email sending and log notifications in database.
-
----
-
-# API Gateway
-
-Responsibilities:
-
-* Route requests
-* Authentication
-* Authorization
-* Request validation
-
-Endpoints:
-
-POST /auth/register
-POST /auth/login
-
-POST /orders
-GET /orders/{id}
-GET /orders
-
-POST /inventory/products
-GET /inventory/products
-
-GET /shipments/{id}
-
-Gateway should issue JWT tokens.
-
----
-
-# Redis Usage
-
-Implement Redis caching for:
-
-* Product lookup
-* Inventory lookup
-* Order lookup
-
-Cache invalidation should happen automatically after updates.
-
----
-
-# RabbitMQ Events
-
-Create a common event schema.
-
-Example:
-
-{
-"event_type": "OrderCreated",
-"timestamp": "2026-06-03T12:00:00Z",
-"payload": {
-"order_id": 123
-}
-}
-
-Implement publishers and consumers for every service.
-
-Use retry logic and dead-letter queues.
-
----
-
-# Security
-
-Implement:
-
-* JWT Authentication
-* Password hashing with bcrypt
-* Role-based access
-
-Roles:
-
-* CUSTOMER
-* ADMIN
-
-Only admins can manage inventory.
-
----
-
-# Logging
-
-Implement structured logging.
-
-Every request should include:
-
-* Request ID
-* Timestamp
-* Service Name
-* Log Level
-
-Store logs in console format suitable for future ELK integration.
-
----
-
-# Testing
-
-Create:
-
-* Unit tests
-* Integration tests
-
-Target:
-
-* Services
-* Event processing
-* API endpoints
-
-Coverage target:
-80%+
-
----
-
-# Docker
-
-Every service should have:
-
-* Dockerfile
-* Environment variables
-* Health checks
-
-Provide a docker-compose.yml that runs:
-
-* PostgreSQL
-* Redis
-* RabbitMQ
-* Order Service
-* Inventory Service
-* Shipping Service
-* Notification Service
-* API Gateway
-
-Entire system should start with:
-
-docker-compose up
-
----
-
-# Stretch Goals
-
-If time permits:
-
-1. Distributed tracing
-2. OpenTelemetry
-3. Prometheus metrics
-4. Grafana dashboards
-5. AWS deployment
-6. Kubernetes deployment
-7. Inventory forecasting
-8. Rate limiting
-9. Circuit breakers
-10. Saga pattern for distributed transactions
-
----
-
-# Expected Outcome
-
-The final project should look like a production-ready backend platform demonstrating:
-
-* FastAPI expertise
-* Microservices architecture
-* Event-driven systems
-* PostgreSQL design
-* Redis caching
-* RabbitMQ messaging
-* Dockerized deployment
-* Cloud-ready infrastructure
-
-The codebase should prioritize clean architecture, maintainability, scalability, testing, and industry-standard engineering practices.
+# OrderMesh — Distributed Logistics & Order Fulfillment Platform
+
+A production-style, event-driven microservices backend simulating an e‑commerce
+order fulfillment workflow: customers place orders, stock is reserved, shipments
+are created with tracking numbers, and customers are notified — all coordinated
+asynchronously over RabbitMQ.
+
+> Full functional specification lives in [`about.md`](./about.md).
+
+## Architecture
+
+```
+            ┌────────────┐
+  client ──▶│ API Gateway│  (JWT auth, RBAC, request validation, reverse proxy)
+            └─────┬──────┘
+       REST  ┌────┴────┬───────────┬───────────┐
+             ▼         ▼           ▼            ▼
+        ┌────────┐ ┌─────────┐ ┌────────┐ ┌─────────────┐
+        │ Order  │ │Inventory│ │Shipping│ │Notification │
+        └───┬────┘ └────┬────┘ └───┬────┘ └──────┬──────┘
+            │           │          │             │
+            └───────────┴────RabbitMQ topic──────┘
+                     (logistics.events + DLX/DLQ)
+```
+
+**Event flow (happy path):**
+`OrderCreated → StockReserved → ShipmentCreated → (notifications)`; insufficient
+stock yields `StockUnavailable` → order is `CANCELLED`.
+
+| Service | Responsibility | Publishes | Consumes |
+|---|---|---|---|
+| **gateway** | Auth (JWT), RBAC, routing | — | — |
+| **order** | Orders & items, status lifecycle | OrderCreated, OrderCancelled | StockReserved, StockUnavailable, ShipmentCreated |
+| **inventory** | Products, stock reservation | StockReserved, StockUnavailable, StockReleased | OrderCreated, OrderCancelled |
+| **shipping** | Shipments, tracking numbers | ShipmentCreated, ShipmentDelivered | StockReserved |
+| **notification** | Mock email + history log | — | OrderCreated, StockReserved, ShipmentCreated, ShipmentDelivered |
+
+### Tech
+FastAPI · async SQLAlchemy 2.0 + asyncpg · PostgreSQL (database-per-service) ·
+Redis (cache-aside) · RabbitMQ (topic exchange, retries, dead-letter queues) ·
+Alembic · JWT + bcrypt · Docker Compose · Pytest · GitHub Actions.
+
+## Repository layout
+
+```
+shared/                  Installable library: events, broker, auth, db, cache, logging
+services/<svc>/app/      FastAPI app (config, models, schemas, service, routes, consumers)
+services/<svc>/alembic/  Per-service migrations (run on container start)
+infra/postgres/          init script creating the 5 logical databases
+docker-compose.yml       Full stack
+```
+
+## Running the stack
+
+```bash
+cp .env.example .env
+docker-compose up --build
+```
+
+This starts PostgreSQL, Redis, RabbitMQ and all five services. Each service runs
+its Alembic migrations on startup. Once healthy:
+
+- API Gateway → http://localhost:8000  (Swagger UI at `/docs`)
+- RabbitMQ management → http://localhost:15672  (user/pass from `.env`)
+
+### Try the end-to-end flow
+
+```bash
+# 1. Register an admin + a customer, then log in
+curl -X POST localhost:8000/auth/register -H 'Content-Type: application/json' \
+  -d '{"email":"admin@x.com","password":"secret123","role":"ADMIN"}'
+curl -X POST localhost:8000/auth/register -H 'Content-Type: application/json' \
+  -d '{"email":"cust@x.com","password":"secret123"}'
+ADMIN=$(curl -s -X POST localhost:8000/auth/login -H 'Content-Type: application/json' \
+  -d '{"email":"admin@x.com","password":"secret123"}' | jq -r .access_token)
+CUST=$(curl -s -X POST localhost:8000/auth/login -H 'Content-Type: application/json' \
+  -d '{"email":"cust@x.com","password":"secret123"}' | jq -r .access_token)
+
+# 2. Admin seeds a product
+curl -X POST localhost:8000/inventory/products -H "Authorization: Bearer $ADMIN" \
+  -H 'Content-Type: application/json' -d '{"sku":"SKU1","name":"Widget","quantity_available":100}'
+
+# 3. Customer places an order (product_id from step 2)
+curl -X POST localhost:8000/orders -H "Authorization: Bearer $CUST" \
+  -H 'Content-Type: application/json' \
+  -d '{"items":[{"product_id":1,"quantity":2,"price":"19.99"}]}'
+
+# 4. Watch the order become CONFIRMED -> SHIPPED, and a shipment appear
+curl localhost:8000/orders/1 -H "Authorization: Bearer $CUST"
+curl localhost:8000/shipments/1 -H "Authorization: Bearer $CUST"
+```
+
+## Testing
+
+Tests run against SQLite and in-process fakes — **no infra required**.
+
+```bash
+python -m venv .venv
+. .venv/Scripts/activate          # Windows: .venv\Scripts\activate
+pip install ./shared -r requirements-dev.txt
+pip install pydantic-settings email-validator   # service runtime deps used by tests
+
+# Run a package's suite with coverage:
+cd shared            && pytest --cov=shared
+cd services/order    && pytest --cov=app
+# ...gateway / inventory / shipping / notification likewise
+```
+
+CI (`.github/workflows/ci.yml`) runs every suite with `--cov-fail-under=80`.
+
+## Design notes
+
+- **Event envelope** (`shared/shared/events/schema.py`): `{event_type, timestamp,
+  request_id, payload}`. The request id flows from HTTP middleware into events and
+  back into consumer logs for traceability.
+- **Reliability**: each consumer binds a durable queue; handler failures are
+  retried with exponential backoff and dead-lettered after `MAX_RETRIES`.
+- **Idempotency**: stock reservation and shipment creation are keyed on
+  `order_id`, so redelivered events don't double-apply.
+- **Caching**: cache-aside on order/product/shipment lookups; cache failures
+  degrade to a miss rather than erroring.
+- **Security**: JWT issued by the gateway; internal services trust gateway-set
+  `X-User-Id` / `X-User-Role` headers on the private network. Only `ADMIN` can
+  manage inventory.
+
+## Stretch goals (not yet implemented)
+Distributed tracing / OpenTelemetry, Prometheus + Grafana, rate limiting, circuit
+breakers, Saga pattern, AWS (EC2/RDS/ElastiCache) & Kubernetes deployment.
