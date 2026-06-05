@@ -20,6 +20,8 @@ def _upstream_handler(request: httpx.Request) -> httpx.Response:
             "path": request.url.path,
             "uid": request.headers.get("X-User-Id"),
             "role": request.headers.get("X-User-Role"),
+            "content_type": request.headers.get("content-type"),
+            "body": request.content.decode() or None,
         },
     )
 
@@ -68,3 +70,15 @@ async def test_shipment_path_forwarded(client):
     resp = await client.get("/shipments/42", headers=_token())
     assert resp.status_code == 200
     assert resp.json()["path"] == "/shipments/42"
+
+
+async def test_content_type_and_body_are_forwarded(client):
+    # Regression: the proxy must preserve Content-Type so downstream services
+    # parse the JSON body instead of receiving an opaque string.
+    resp = await client.post(
+        "/orders", json={"items": [{"product_id": 1}]}, headers=_token()
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["content_type"] == "application/json"
+    assert body["body"] == '{"items":[{"product_id":1}]}'
