@@ -5,7 +5,6 @@ order fulfillment workflow: customers place orders, stock is reserved, shipments
 are created with tracking numbers, and customers are notified — all coordinated
 asynchronously over RabbitMQ.
 
-> Full functional specification lives in [`about.md`](./about.md).
 
 ## Architecture
 
