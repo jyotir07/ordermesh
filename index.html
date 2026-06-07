@@ -198,66 +198,90 @@
     .btn svg { width: 17px; height: 17px; }
 
     /* ============================================================
-       HERO
+       HERO  — left-aligned two-column layout
        ============================================================ */
-    .hero { padding: 96px 0 80px; text-align: center; }
-    .hero .pill {
-      display: inline-flex;
+    .hero { padding: 88px 0 72px; }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 56px;
       align-items: center;
-      gap: 9px;
-      font-family: var(--mono);
-      font-size: 12.5px;
-      color: var(--text-dim);
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      padding: 7px 15px;
-      margin-bottom: 28px;
     }
-    .hero .pill .dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--teal);
-      box-shadow: 0 0 0 4px rgba(45,212,191,.18);
-      animation: pulse 2.4s infinite;
-    }
-    @keyframes pulse {
-      0%,100% { opacity: 1; }
-      50%     { opacity: .35; }
-    }
-    .hero h1 {
-      font-size: clamp(34px, 6vw, 62px);
-      font-weight: 800;
-      max-width: 17ch;
-      margin: 0 auto;
-    }
-    .hero h1 .grad {
-      background: linear-gradient(120deg, var(--teal-bright), var(--teal) 50%, var(--amber));
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .hero .lede {
-      max-width: 60ch;
-      margin: 26px auto 0;
-      color: var(--text-dim);
-      font-size: clamp(16px, 2vw, 19px);
-    }
-    .hero .cta { display: flex; gap: 14px; justify-content: center; margin-top: 38px; flex-wrap: wrap; }
-
-    /* little event-flow ticker under hero */
-    .ticker {
-      margin-top: 54px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
+    /* small mono kicker instead of the badge-with-pulsing-dot cliché */
+    .hero .kicker {
       font-family: var(--mono);
       font-size: 13px;
       color: var(--text-faint);
+      margin-bottom: 22px;
+      letter-spacing: .01em;
     }
-    .ticker .tok { color: var(--teal); }
-    .ticker .arr { color: var(--text-faint); }
+    .hero .kicker .c { color: var(--teal); }
+    .hero h1 {
+      font-size: clamp(33px, 4.6vw, 54px);
+      font-weight: 800;
+      line-height: 1.08;
+    }
+    /* single, restrained accent — no rainbow gradient */
+    .hero h1 em { color: var(--teal); font-style: normal; }
+    .hero .lede {
+      max-width: 52ch;
+      margin: 22px 0 0;
+      color: var(--text-dim);
+      font-size: clamp(15.5px, 1.6vw, 18px);
+    }
+    .hero .cta { display: flex; gap: 14px; margin-top: 34px; flex-wrap: wrap; }
+    /* keep the primary button confident but drop the heavy glow */
+    .hero .cta .btn-primary { box-shadow: none; }
+    .hero .cta .btn-primary:hover { box-shadow: 0 8px 24px -10px rgba(45,212,191,.45); }
+
+    /* meta line under the CTAs — quiet, factual */
+    .hero .meta {
+      margin-top: 30px;
+      display: flex;
+      gap: 22px;
+      flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--text-faint);
+    }
+    .hero .meta span b { color: var(--text-dim); font-weight: 600; }
+
+    /* right column: an authentic event-trace terminal */
+    .trace {
+      background: #070b11;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .trace .bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-soft);
+    }
+    .trace .bar .dots { display: flex; gap: 6px; }
+    .trace .bar .dots i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .trace .bar .dots i:nth-child(1){ background:#ff5f57; }
+    .trace .bar .dots i:nth-child(2){ background:#febc2e; }
+    .trace .bar .dots i:nth-child(3){ background:#28c840; }
+    .trace .bar .title { font-family: var(--mono); font-size: 11.5px; color: var(--text-faint); margin-left: 4px; }
+    .trace pre {
+      margin: 0;
+      padding: 18px 18px 20px;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.95;
+      color: #c8d4e3;
+      overflow-x: auto;
+    }
+    .trace .ln { display: block; opacity: 0; transform: translateY(4px); animation: traceIn .45s forwards; }
+    .trace .pub  { color: var(--amber); }
+    .trace .con  { color: var(--teal); }
+    .trace .rid  { color: var(--text-faint); }
+    .trace .ok   { color: #28c840; }
+    .trace .dim  { color: var(--text-faint); }
+    @keyframes traceIn { to { opacity: 1; transform: none; } }
 
     /* ============================================================
        ARCHITECTURE DIAGRAM
@@ -569,11 +593,13 @@
       .nav-gh { margin-left: 0; margin-top: 6px; justify-content: center; }
       .nav-toggle { display: inline-flex; }
       section { padding: 72px 0; }
-      .hero { padding: 64px 0 56px; }
+      .hero { padding: 56px 0 56px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 40px; }
     }
     @media (max-width: 520px) {
       .container { padding: 0 18px; }
       .hero .cta .btn { flex: 1 1 100%; }
+      .hero .meta { gap: 16px; }
     }
 
     /* Respect reduced-motion */
@@ -629,30 +655,44 @@
        ============================================================= -->
   <header class="hero">
     <div class="container">
-      <span class="pill"><span class="dot"></span> Event-driven · FastAPI · RabbitMQ</span>
-      <h1>Distributed order fulfillment, <span class="grad">coordinated asynchronously</span></h1>
-      <p class="lede">
-        OrderMesh is a production-style, event-driven microservices backend that simulates an e-commerce
-        order fulfillment workflow. Customers place orders, stock is reserved, shipments are created with
-        tracking numbers, and customers are notified — all choreographed over RabbitMQ.
-      </p>
-      <div class="cta">
-        <a href="#start" class="btn btn-primary">
-          Get Started
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </a>
-        <a href="https://github.com/jyotir07/ordermesh" target="_blank" rel="noopener" class="btn btn-ghost">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0C17.3 4.6 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
-          View on GitHub
-        </a>
-      </div>
+      <div class="hero-grid">
 
-      <!-- event-flow ticker -->
-      <div class="ticker" aria-hidden="true">
-        <span class="tok">OrderCreated</span><span class="arr">→</span>
-        <span class="tok">StockReserved</span><span class="arr">→</span>
-        <span class="tok">ShipmentCreated</span><span class="arr">→</span>
-        <span class="tok">Notification</span>
+        <!-- left column: copy + CTAs -->
+        <div class="hero-copy">
+          <div class="kicker"><span class="c">//</span> event-driven order fulfillment, over RabbitMQ</div>
+          <h1>Distributed order fulfillment,<br>coordinated <em>asynchronously</em>.</h1>
+          <p class="lede">
+            A production-style microservices backend that simulates e-commerce fulfillment. Orders come in,
+            stock gets reserved, shipments are created with tracking numbers, and customers get notified —
+            services never call each other, they just react to events.
+          </p>
+          <div class="cta">
+            <a href="#start" class="btn btn-primary">
+              Get Started
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a href="https://github.com/jyotir07/ordermesh" target="_blank" rel="noopener" class="btn btn-ghost">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0C17.3 4.6 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+              View on GitHub
+            </a>
+          </div>
+          <div class="meta">
+            <span><b>5</b> services</span>
+            <span><b>1</b> topic exchange</span>
+            <span><b>DB</b>-per-service</span>
+            <span><b>80%+</b> test coverage</span>
+          </div>
+        </div>
+
+        <!-- right column: live-ish event trace (dev-authentic, not a stock illustration) -->
+        <div class="trace" aria-hidden="true">
+          <div class="bar">
+            <span class="dots"><i></i><i></i><i></i></span>
+            <span class="title">logistics.events — request 8f3a21</span>
+          </div>
+          <pre><span class="ln" style="animation-delay:.1s"><span class="dim">$</span> POST /orders  <span class="ok">201</span></span><span class="ln" style="animation-delay:.5s"><span class="pub">→ publish</span>  OrderCreated      <span class="rid">req:8f3a21</span></span><span class="ln" style="animation-delay:1.0s"><span class="con">← consume</span>  StockReserved     <span class="rid">inventory</span></span><span class="ln" style="animation-delay:1.5s"><span class="con">← consume</span>  ShipmentCreated   <span class="rid">TRK-4471</span></span><span class="ln" style="animation-delay:2.0s"><span class="con">← consume</span>  Notification      <span class="ok">sent ✓</span></span><span class="ln" style="animation-delay:2.6s"><span class="dim"># order FULFILLED in 214ms</span></span></pre>
+        </div>
+
       </div>
     </div>
   </header>
