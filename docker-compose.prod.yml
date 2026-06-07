@@ -1,0 +1,66 @@
+# Production overlay. Use together with the base file:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# What it changes vs. the base (local-dev) compose:
+#   * Stops publishing Postgres / Redis / RabbitMQ / gateway ports to the host,
+#     so nothing is reachable from the internet except Caddy on 80/443.
+#   * Adds a Caddy reverse proxy that terminates TLS (automatic Let's Encrypt
+#     certificates) and forwards traffic to the gateway over the compose network.
+#   * Sets restart: unless-stopped so the stack survives reboots.
+#
+# The `!reset []` tag requires Docker Compose v2.24+ (the version installed by
+# get.docker.com is fine). It removes the published ports declared in the base
+# file so the data services stay private.
+
+services:
+  postgres:
+    ports: !reset []
+    restart: unless-stopped
+
+  redis:
+    ports: !reset []
+    restart: unless-stopped
+
+  rabbitmq:
+    # Keep the AMQP/management ports off the host. If you want the management
+    # UI, tunnel it over SSH instead of publishing it.
+    ports: !reset []
+    restart: unless-stopped
+
+  order:
+    restart: unless-stopped
+
+  inventory:
+    restart: unless-stopped
+
+  shipping:
+    restart: unless-stopped
+
+  notification:
+    restart: unless-stopped
+
+  gateway:
+    # No longer published directly; Caddy is the only public entrypoint.
+    ports: !reset []
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - gateway
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # Set SITE_ADDRESS in .env: a domain (auto-HTTPS) or ":80" (plain HTTP).
+      SITE_ADDRESS: ${SITE_ADDRESS}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

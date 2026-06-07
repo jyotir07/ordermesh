@@ -1,0 +1,13 @@
+# Caddy reverse proxy for the API gateway.
+#
+# SITE_ADDRESS controls how Caddy serves:
+#   * A real domain (e.g. api.example.com or your.duckdns.org) -> Caddy
+#     automatically obtains and renews a free Let's Encrypt TLS certificate.
+#   * ":80" -> plain HTTP only (use this when you only have a raw IP and no
+#     domain; Let's Encrypt cannot issue certs for bare IPs).
+#
+# All traffic is forwarded to the gateway container over the compose network.
+
+{$SITE_ADDRESS} {
+	reverse_proxy gateway:8000
+}
